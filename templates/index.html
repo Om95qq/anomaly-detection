@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Machine Anomaly Detection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+            color: #fff;
+            height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .main-container {
+            display: flex;
+            flex-direction: row;
+            width: 95%;
+            height: 95%;
+            gap: 40px;
+        }
+
+        .left {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            overflow: auto;
+        }
+
+        .left h2 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .left p {
+            margin-bottom: 20px;
+            color: #ccc;
+            font-size: 1rem;
+            text-align: center;
+            max-width: 90%;
+        }
+
+        .left img {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+        }
+
+        .right {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .right h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            color: #ffffff;
+        }
+
+        .right form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .right label {
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+            color: #ccc;
+        }
+
+        .right input[type="file"] {
+            background-color: white;
+            padding: 10px;
+            border: none;
+            margin-bottom: 20px;
+            font-size: 1rem;
+            border-radius: 6px;
+            transition: background-color 0.3s ease;
+        }
+
+        .right input[type="file"]:hover {
+            background-color: #f0f0f0;
+        }
+
+        .right button {
+            padding: 12px;
+            background-color: #00c6ff;
+            background-image: linear-gradient(315deg, #00c6ff 0%, #0072ff 74%);
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s ease;
+            margin-bottom: 10px;
+            animation: pulse 1.5s infinite;
+        }
+
+        .right button:hover {
+            background-image: linear-gradient(315deg, #0072ff 0%, #00c6ff 74%);
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 123, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0); }
+        }
+
+        .download-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .download-link a {
+            color: #00eaff;
+            font-weight: 500;
+            text-decoration: underline;
+            font-size: 1.1rem;
+        }
+
+        .result {
+            margin-top: 30px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #ffeb3b;
+        }
+
+        footer {
+            position: absolute;
+            bottom: 10px;
+            text-align: center;
+            width: 100%;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 1000px) {
+            .main-container {
+                flex-direction: column;
+                align-items: center;
+                height: auto;
+                padding: 20px;
+            }
+
+            .left, .right {
+                width: 90%;
+                margin-bottom: 20px;
+            }
+
+            .left img {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+    <div class="left">
+        <h2>Anomaly Graph</h2>
+        <p>The chart below visualizes temperature, vibration, and pressure data with anomaly markers (red). It helps monitor machine health effectively.</p>
+        {% if graph %}
+            <img src="{{ graph }}" alt="Anomaly Graph">
+        {% endif %}
+    </div>
+
+    <div class="right">
+        <h1>Upload Sensor Data</h1>
+        <form method="POST" enctype="multipart/form-data">
+            <label>📁 Upload your sensor CSV file. Ensure it has 'temperature', 'vibration', and 'pressure' columns.</label>
+            <input type="file" name="file" required title="Upload your sensor data file">
+            <button type="submit">Upload & Detect</button>
+        </form>
+        {% if result %}
+            <div class="result">{{ result }}</div>
+            <div class="download-link">
+                <a href="/download">📥 Download Result CSV</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<footer>
+    © 2025 | Machine Health Detection | Powered by Flask & ML
+</footer>
+
+</body>
+</html>
