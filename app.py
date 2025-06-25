@@ -6,12 +6,16 @@ import os
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'uploads'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+STATIC_FOLDER = 'static'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(STATIC_FOLDER, exist_ok=True)
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 def detect_anomaly(file_path):
     data = pd.read_csv(file_path)
 
+    # For demo / normal data
     is_clean_data = 'normal' in file_path.lower() or 'sensor_data.csv' in file_path.lower()
 
     if is_clean_data:
@@ -69,31 +73,39 @@ def detect_anomaly(file_path):
     axs[2].grid(True)
 
     plt.tight_layout()
-    graph_path = os.path.join('static', 'anomaly_plot.png')
+    graph_path = os.path.join(STATIC_FOLDER, 'anomaly_plot.png')
     plt.savefig(graph_path)
     plt.close()
 
     if len(data[data['final_status'] == 'Anomaly']) >= 2:
-        result = "⚠️ Machine may be faulty!"
+        result = "<div style='margin-top: 20px; padding: 15px; background-color: #ff4c4c; color: white; font-weight: bold; border-radius: 8px;'>⚠️ Machine may be faulty!</div>"
     else:
-        result = "✅ Machine is working normally."
+        result = "<div style='margin-top: 20px; padding: 15px; background-color: #28a745; color: white; font-weight: bold; border-radius: 8px;'>✅ Machine is working normally.</div>"
 
     return graph_path, result
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
+    table_html = None
+    graph_path = None
+    result = None
     if request.method == 'POST':
         file = request.files['file']
         if file:
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
             file.save(file_path)
             graph_path, result = detect_anomaly(file_path)
-            return render_template('index.html', graph=graph_path, result=result)
-    return render_template('index.html', graph=None, result=None)
+
+            df = pd.read_csv('sensor_data_with_anomaly.csv')
+            table_html = df.head(20).to_html(classes='data', header=True, index=False)
+
+    return render_template('index.html', graph=graph_path, result=result, table_html=table_html)
 
 @app.route('/download')
 def download_file():
     return send_file('sensor_data_with_anomaly.csv', as_attachment=True)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    import os
+    port = int(os.environ.get("PORT", 5000))  # default port for Heroku/Render
+    app.run(host='0.0.0.0', port=port)
